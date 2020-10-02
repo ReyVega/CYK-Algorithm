@@ -4,7 +4,7 @@ public class Main {
 		Convertidor c = new Convertidor();
 		c.leerArchivo();
 		c.eliminarProduccionesQueNoGeneranTerminales();
-//		c.eliminarProduccionesNoAlcanzables();
+		c.eliminarProduccionesNoAlcanzables();
 		c.imprimirGramatica();
 	}
 }
