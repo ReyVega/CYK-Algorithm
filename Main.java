@@ -5,6 +5,7 @@ public class Main {
 		c.leerArchivo();
 		c.eliminarProduccionesQueNoGeneranTerminales();
 		c.eliminarProduccionesNoAlcanzables();
+		c.generarCerraduraDeProducciones();
 		c.imprimirGramatica();
 	}
 }

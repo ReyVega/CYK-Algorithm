@@ -5,16 +5,19 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class Convertidor {
 	private ArrayList<Character> simbolosNoTerminales = new ArrayList<Character>();
 	private ArrayList<Character> simbolosTerminales = new ArrayList<Character>();
 	private LinkedHashMap<Character, ArrayList<String>> producciones = new LinkedHashMap<Character, ArrayList<String>>();
+	private String simboloUnitario = null;
 
 	public void eliminarProduccionesQueNoGeneranTerminales() {
 		boolean prueba = false;
@@ -24,7 +27,7 @@ public class Convertidor {
 
 		// Algoritmo para obtener N1
 		while (true) {
-			LinkedHashSet<Character> tmp = new LinkedHashSet<Character>(N1);
+			LinkedHashSet<Character> tmp = (LinkedHashSet<Character>) N1.clone();
 
 			// Recorrer todas las producciones
 			for (Entry<Character, ArrayList<String>> me : this.producciones.entrySet()) {
@@ -91,7 +94,7 @@ public class Convertidor {
 			}
 		}
 
-		// BFS (Busca nodos que son alcanzables)
+		// BFS (Buscar nodos que son alcanzables)
 		LinkedList<Character> queue = new LinkedList<Character>();
 		LinkedHashSet<Character> visited = new LinkedHashSet<Character>();
 		queue.add(this.simbolosNoTerminales.get(0));
@@ -120,39 +123,106 @@ public class Convertidor {
 		}
 
 		// Actualizar conjunto de simbolos no terminales
-		this.simbolosNoTerminales.clear();
-		for(Entry<Character, ArrayList<String>> me : this.producciones.entrySet()) {
-			this.simbolosNoTerminales.add(me.getKey());
-		}
+		this.actualizarSimbolosNoTerminales();
 	}
 
-	public void eliminarProduccionesEpsilon() {
-		for (int i = 0; i < this.simbolosNoTerminales.size(); i++) {
-			for (int j = 0; j < this.producciones.get(this.simbolosNoTerminales.get(i)).size(); j++) {
-				for (int k = 0; k < this.producciones.get(this.simbolosNoTerminales.get(i)).get(j).length(); k++) {
-					if (this.simbolosNoTerminales
-							.contains(this.producciones.get(this.simbolosNoTerminales.get(i)).get(j).charAt(k))) {
-						this.checarSiTieneEpsilonProduccion(
-								this.producciones.get(this.simbolosNoTerminales.get(i)).get(j).charAt(k),
-								this.simbolosNoTerminales.get(i), i, j);
+	public void generarCerraduraDeProducciones() {
+		while (true) {
+			LinkedHashMap<Character, ArrayList<String>> tmp = clone(this.producciones);
+			// Checar si tiene Epsilon Producciones
+			for (Entry<Character, ArrayList<String>> me : this.producciones.entrySet()) {
+				for (int j = 0; j < me.getValue().size(); j++) {
+					for (int k = 0; k < me.getValue().get(j).length(); k++) {
+						if (this.simbolosNoTerminales.contains(me.getValue().get(j).charAt(k))) {
+							if (this.checarSiTieneEpsilonProduccion(me.getValue().get(j).charAt(k))) {
+								String word = this.producciones.get(me.getKey()).get(j);
+								word = word.substring(0, k) + "" + word.substring(k + 1);
+								if (word.equals("")) {
+									word = "0";
+								}
+								if (!me.getValue().contains(word)) {
+									this.producciones.get(me.getKey()).add(word);
+								}
+							}
+						}
 					}
 				}
 			}
-		}
-	}
 
-	public void checarSiTieneEpsilonProduccion(Character ch, Character proveniente, int indexI, int IndexJ) {
-		for (int i = 0; i < this.producciones.get(ch).size(); i++) {
-			for (int j = 0; j < this.producciones.get(ch).get(i).length(); j++) {
-				if (this.producciones.get(ch).get(i).charAt(j) == '0') {
-					this.producciones.get(ch).remove(i);
+			// Checar si tiene producciones unitarias
+			for (Entry<Character, ArrayList<String>> me : this.producciones.entrySet()) {
+				for (int j = 0; j < me.getValue().size(); j++) {
+					if (me.getValue().get(j).length() == 1) {
+						if (this.simbolosNoTerminales.contains(me.getValue().get(j).charAt(0))) {
+							if (this.checarSiTieneProduccionUnitaria(me.getValue().get(j))) {
+								if (!me.getValue().contains(this.simboloUnitario)) {
+									this.producciones.get(me.getKey()).add(this.simboloUnitario);
+								}
+							}
+						}
+					}
+				}
+			}
+
+			if (tmp.equals(this.producciones)) {
+				break;
+			}
+		}
+
+		// Limpiar producciones epsilon
+		for (Entry<Character, ArrayList<String>> me : this.producciones.entrySet()) {
+			for (int j = 0; j < me.getValue().size(); j++) {
+				if (me.getValue().get(j).equals("0")) {
+					me.getValue().remove(j);
+					j--;
 				}
 			}
 		}
+
+		// Limpiar producciones unitarias
+		LinkedHashSet<Character> simbolosABorrar = new LinkedHashSet<Character>();
+		for (Entry<Character, ArrayList<String>> me : this.producciones.entrySet()) {
+			if (me.getValue().size() == 1) {
+				if (me.getValue().get(0).length() == 1 || me.getValue().get(0).length() == 0) {
+					simbolosABorrar.add(me.getKey());
+				}
+			}
+		}
+
+		for (Entry<Character, ArrayList<String>> me : this.producciones.entrySet()) {
+			for (int j = 0; j < me.getValue().size(); j++) {
+				if (simbolosABorrar.contains(me.getValue().get(j).charAt(0))) {
+					me.getValue().remove(j);
+					j--;
+				}
+			}
+		}
+
+		for (Character ch : simbolosABorrar) {
+			this.producciones.remove(ch);
+		}
+
+		// Actualizar conjunto de simbolos no terminales
+		this.actualizarSimbolosNoTerminales();
 	}
 
-	public void eliminarProduccionesUnitarias() {
+	public boolean checarSiTieneEpsilonProduccion(Character ch) {
+		for (String m : this.producciones.get(ch)) {
+			if (m.equals("0")) {
+				return true;
+			}
+		}
+		return false;
+	}
 
+	public boolean checarSiTieneProduccionUnitaria(String ch) {
+		for (String m : this.producciones.get(ch.charAt(0))) {
+			if (m.length() == 1 && this.simbolosTerminales.contains(m.charAt(0))) {
+				this.simboloUnitario = Character.toString(m.charAt(0));
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void convertirChomsky() {
@@ -193,18 +263,32 @@ public class Convertidor {
 	}
 
 	public void imprimirGramatica() {
-		for (int i = 0; i < this.simbolosNoTerminales.size(); i++) {
-			if (this.producciones.containsKey(this.simbolosNoTerminales.get(i))) {
-				System.out.print(this.simbolosNoTerminales.get(i) + "->");
-				for (int j = 0; j < this.producciones.get(this.simbolosNoTerminales.get(i)).size(); j++) {
-					if (j + 1 >= this.producciones.get(this.simbolosNoTerminales.get(i)).size()) {
-						System.out.print(this.producciones.get(this.simbolosNoTerminales.get(i)).get(j));
-					} else {
-						System.out.print(this.producciones.get(this.simbolosNoTerminales.get(i)).get(j) + ",");
-					}
+		for (Entry<Character, ArrayList<String>> me : this.producciones.entrySet()) {
+			System.out.print(me.getKey() + "->");
+			for (int j = 0; j < me.getValue().size(); j++) {
+				if (j + 1 >= me.getValue().size()) {
+					System.out.print(me.getValue().get(j));
+				} else {
+					System.out.print(me.getValue().get(j) + ",");
 				}
-				System.out.println();
 			}
+			System.out.println();
 		}
+	}
+
+	public void actualizarSimbolosNoTerminales() {
+		this.simbolosNoTerminales.clear();
+		for (Entry<Character, ArrayList<String>> me : this.producciones.entrySet()) {
+			this.simbolosNoTerminales.add(me.getKey());
+		}
+	}
+
+	public LinkedHashMap<Character, ArrayList<String>> clone(LinkedHashMap<Character, ArrayList<String>> hm) {
+		LinkedHashMap<Character, ArrayList<String>> clon = new LinkedHashMap<Character, ArrayList<String>>();
+		for (int i = 0; i < this.simbolosNoTerminales.size(); i++) {
+			clon.put(this.simbolosNoTerminales.get(i),
+					(ArrayList<String>) hm.get(this.simbolosNoTerminales.get(i)).clone());
+		}
+		return clon;
 	}
 }
