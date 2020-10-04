@@ -7,6 +7,7 @@ public class Main {
 		c.eliminarProduccionesNoAlcanzables();
 		c.generarCerraduraDeProducciones();
 		c.convertirChomsky();
+		c.eliminarProduccionesNoAlcanzables();
 		c.imprimirGramatica();
 	}
 }

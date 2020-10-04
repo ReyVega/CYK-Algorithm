@@ -248,8 +248,8 @@ public class Convertidor {
 		// Añadimos nuevas producciones y vemos por cuales simbolos reemplazaremos los
 		// simbolos terminales
 		LinkedHashMap<Character, Character> reemplazador = new LinkedHashMap<Character, Character>();
-
 		this.simbolosChomsky.removeAll(this.simbolosNoTerminales);
+		
 		for (Character ch : terminalesVisitados) {
 			this.producciones.put(this.simbolosChomsky.get(0),
 					new ArrayList<String>(Arrays.asList(Character.toString(ch))));
@@ -272,6 +272,26 @@ public class Convertidor {
 				}
 			}
 		}
+
+		// Generamos más producciones para que las producciones actuales solo sean
+		// concatenaciones de 2
+		for (int i = 0; i < this.simbolosNoTerminales.size(); i++) {
+			for (int j = 0; j < this.producciones.get(this.simbolosNoTerminales.get(i)).size(); j++) {
+				while (this.producciones.get(this.simbolosNoTerminales.get(i)).get(j).length() > 2) {
+					String word = this.producciones.get(this.simbolosNoTerminales.get(i)).get(j);
+					word = word.substring(1, 3);
+					this.producciones.put(this.simbolosChomsky.get(0), new ArrayList<String>(Arrays.asList(word)));
+
+					word = this.producciones.get(this.simbolosNoTerminales.get(i)).get(j);
+					String tmp = word;
+					word = word.substring(0, 1) + this.simbolosChomsky.get(0) + tmp.substring(3);
+					this.producciones.get(this.simbolosNoTerminales.get(i)).set(j, word);
+					this.simbolosChomsky.remove(0);
+				}
+			}
+		}
+		// Actualizar cambios de simbolos no terminales
+		this.actualizarSimbolosNoTerminales();
 	}
 
 	public void convertirGreibach() {
