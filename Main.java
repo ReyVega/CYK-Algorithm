@@ -6,6 +6,7 @@ public class Main {
 		c.eliminarProduccionesQueNoGeneranTerminales();
 		c.eliminarProduccionesNoAlcanzables();
 		c.generarCerraduraDeProducciones();
+		c.convertirChomsky();
 		c.imprimirGramatica();
 	}
 }

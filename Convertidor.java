@@ -18,12 +18,21 @@ public class Convertidor {
 	private ArrayList<Character> simbolosTerminales = new ArrayList<Character>();
 	private LinkedHashMap<Character, ArrayList<String>> producciones = new LinkedHashMap<Character, ArrayList<String>>();
 	private String simboloUnitario = null;
+	private ArrayList<Character> simbolosChomsky = new ArrayList<Character>();
+
+	public Convertidor() {
+		// Símbolos para utilizar en la conversión de GLC a Chomsky
+		for (Character ch = 'A'; ch <= 'Z'; ch++) {
+			this.simbolosChomsky.add(ch);
+		}
+	}
 
 	public void eliminarProduccionesQueNoGeneranTerminales() {
 		boolean prueba = false;
 		LinkedHashSet<Character> N1 = new LinkedHashSet<Character>();
 		LinkedHashSet<Character> N1USigma = new LinkedHashSet<Character>();
 		N1USigma.addAll(this.simbolosTerminales);
+		N1USigma.add('0');
 
 		// Algoritmo para obtener N1
 		while (true) {
@@ -180,26 +189,23 @@ public class Convertidor {
 		}
 
 		// Limpiar producciones unitarias
-		LinkedHashSet<Character> simbolosABorrar = new LinkedHashSet<Character>();
-		for (Entry<Character, ArrayList<String>> me : this.producciones.entrySet()) {
-			if (me.getValue().size() == 1) {
-				if (me.getValue().get(0).length() == 1 || me.getValue().get(0).length() == 0) {
-					simbolosABorrar.add(me.getKey());
-				}
-			}
-		}
-
 		for (Entry<Character, ArrayList<String>> me : this.producciones.entrySet()) {
 			for (int j = 0; j < me.getValue().size(); j++) {
-				if (simbolosABorrar.contains(me.getValue().get(j).charAt(0))) {
+				if (me.getValue().get(j).length() == 1
+						&& this.simbolosNoTerminales.contains(me.getValue().get(j).charAt(0))) {
 					me.getValue().remove(j);
 					j--;
 				}
 			}
 		}
 
-		for (Character ch : simbolosABorrar) {
-			this.producciones.remove(ch);
+		for (Entry<Character, ArrayList<String>> me : this.producciones.entrySet()) {
+			if (me.getValue().size() == 1) {
+				if (me.getValue().get(0).length() == 1
+						&& this.simbolosTerminales.contains(me.getValue().get(0).charAt(0))) {
+					this.producciones.remove(me.getKey());
+				}
+			}
 		}
 
 		// Actualizar conjunto de simbolos no terminales
@@ -226,7 +232,46 @@ public class Convertidor {
 	}
 
 	public void convertirChomsky() {
+		LinkedHashSet<Character> terminalesVisitados = new LinkedHashSet<Character>();
 
+		// Recorremos y buscamos posibles simbolos terminales para reemplazar
+		for (Entry<Character, ArrayList<String>> me : this.producciones.entrySet()) {
+			for (int j = 0; j < me.getValue().size(); j++) {
+				for (int k = 0; k < me.getValue().get(j).length(); k++) {
+					if (this.simbolosTerminales.contains(me.getValue().get(j).charAt(k))) {
+						terminalesVisitados.add(me.getValue().get(j).charAt(k));
+					}
+				}
+			}
+		}
+
+		// Añadimos nuevas producciones y vemos por cuales simbolos reemplazaremos los
+		// simbolos terminales
+		LinkedHashMap<Character, Character> reemplazador = new LinkedHashMap<Character, Character>();
+
+		this.simbolosChomsky.removeAll(this.simbolosNoTerminales);
+		for (Character ch : terminalesVisitados) {
+			this.producciones.put(this.simbolosChomsky.get(0),
+					new ArrayList<String>(Arrays.asList(Character.toString(ch))));
+			reemplazador.put(ch, this.simbolosChomsky.get(0));
+			this.simbolosChomsky.remove(0);
+		}
+
+		// Reemplazamos simbolos por nuevas producciones
+		for (Entry<Character, ArrayList<String>> me : this.producciones.entrySet()) {
+			for (int j = 0; j < me.getValue().size(); j++) {
+				if (me.getValue().get(j).length() > 1) {
+					for (int k = 0; k < me.getValue().get(j).length(); k++) {
+						if (reemplazador.containsKey(me.getValue().get(j).charAt(k))) {
+							String word = this.producciones.get(me.getKey()).get(j);
+							word = word.substring(0, k) + reemplazador.get(me.getValue().get(j).charAt(k))
+									+ word.substring(k + 1);
+							this.producciones.get(me.getKey()).set(j, word);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	public void convertirGreibach() {
