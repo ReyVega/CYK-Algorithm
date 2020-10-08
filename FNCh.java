@@ -74,8 +74,7 @@ public class FNCh {
 					this.producciones.put(this.simbolosChomsky.get(0), new ArrayList<String>(Arrays.asList(word)));
 
 					word = this.producciones.get(this.simbolosNoTerminales.get(i)).get(j);
-					String tmp = word;
-					word = word.substring(0, 1) + this.simbolosChomsky.get(0) + tmp.substring(3);
+					word = word.substring(0, 1) + this.simbolosChomsky.get(0) + word.substring(3);
 					this.producciones.get(this.simbolosNoTerminales.get(i)).set(j, word);
 					this.simbolosChomsky.remove(0);
 				}
