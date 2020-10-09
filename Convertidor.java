@@ -57,6 +57,7 @@ public class Convertidor {
 				this.word);
 		if (s.aplicarAlgoritmo()) {
 			System.out.println("La cadena es aceptada por la gramática");
+			s.construirArbol();
 		} else {
 			System.out.println("La cadena no es aceptada por la gramática");
 		}

@@ -4,6 +4,13 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JTree;
+import javax.swing.WindowConstants;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+
 public class AlgoritmoCYK {
 	private ArrayList<ArrayList<LinkedHashSet<Character>>> matriz = new ArrayList<ArrayList<LinkedHashSet<Character>>>();
 	private LinkedHashMap<Character, LinkedHashSet<String>> p = new LinkedHashMap<Character, LinkedHashSet<String>>();
@@ -18,7 +25,7 @@ public class AlgoritmoCYK {
 		this.simbolosTerminales = simbolosTerminales;
 		this.producciones = producciones;
 		this.word = word;
-
+		
 		// Preparar producciones para el algoritmo
 		for (Entry<Character, ArrayList<String>> me : this.producciones.entrySet()) {
 			this.p.put(me.getKey(), new LinkedHashSet<String>());
@@ -37,7 +44,6 @@ public class AlgoritmoCYK {
 	}
 
 	public boolean aplicarAlgoritmo() {
-
 		// Llenar primera linea
 		for (int i = 0; i < this.word.length(); i++) {
 			for (Entry<Character, LinkedHashSet<String>> me : this.p.entrySet()) {
@@ -60,6 +66,21 @@ public class AlgoritmoCYK {
 			}
 		}
 		return this.matriz.get(word.length() - 1).get(0).contains(this.simbolosNoTerminales.get(0));
+	}
+	
+	public void construirArbol() {
+		//Arbol
+		DefaultMutableTreeNode dt = new DefaultMutableTreeNode(this.simbolosNoTerminales.get(0));
+		DefaultTreeModel t = new DefaultTreeModel(dt);
+		JTree tree = new JTree(dt);
+		
+		JFrame v = new JFrame();
+        JScrollPane scroll = new JScrollPane(tree);
+        v.getContentPane().add(scroll);
+        v.pack();
+        v.setLocationRelativeTo(null);
+        v.setVisible(true);
+        v.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
 	public LinkedHashSet<Character> checarSiExisteProduccion(LinkedHashSet<Character> first,
