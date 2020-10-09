@@ -50,7 +50,7 @@ public class FNCh {
 			this.simbolosChomsky.remove(0);
 		}
 
-		// Reemplazamos simbolos por nuevas producciones
+		// Reemplazamos simbolos terminales por nuevos símbolos no terminales
 		for (Entry<Character, ArrayList<String>> me : this.producciones.entrySet()) {
 			for (int j = 0; j < me.getValue().size(); j++) {
 				if (me.getValue().get(j).length() > 1) {
