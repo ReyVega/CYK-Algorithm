@@ -37,17 +37,50 @@ public class AlgoritmoCYK {
 	}
 
 	public void aplicarAlgoritmo() {
-		
+
 		// Llenar primera linea
-		for(int i = 0; i < this.word.length(); i++) {
-			for(Entry<Character, LinkedHashSet<String>> me : this.p.entrySet()) {
-				if(me.getValue().contains(Character.toString(this.word.charAt(i)))) {
+		for (int i = 0; i < this.word.length(); i++) {
+			for (Entry<Character, LinkedHashSet<String>> me : this.p.entrySet()) {
+				if (me.getValue().contains(Character.toString(this.word.charAt(i)))) {
 					this.matriz.get(0).get(i).add(me.getKey());
 				}
 			}
 		}
-		System.out.println(this.matriz);
-		
+
+		// Algoritmo
+		for (int i = 1; i < this.word.length(); i++) {
+			for (int j = 0; j < this.matriz.get(i).size(); j++) {
+				int w = j;
+				int z = i;
+				for (int k = 0; k < i; k++) {
+					LinkedHashSet<Character> tmp = this.checarSiExisteProduccion(this.matriz.get(k).get(j),
+							this.matriz.get(--z).get(++w));
+					this.matriz.get(i).get(j).addAll(tmp);
+				}
+			}
+		}
 	}
 
+	public LinkedHashSet<Character> checarSiExisteProduccion(LinkedHashSet<Character> first,
+			LinkedHashSet<Character> second) {
+		
+		LinkedHashSet<String> tmp = new LinkedHashSet<String>();
+
+		for (Character ch : first) {
+			for (Character ch2 : second) {
+				tmp.add(Character.toString(ch) + Character.toString(ch2));
+			}
+		}
+				
+		LinkedHashSet<Character> encontrados = new LinkedHashSet<Character>();
+
+		for (String word : tmp) {
+			for (Entry<Character, LinkedHashSet<String>> me : this.p.entrySet()) {
+				if (me.getValue().contains(word)) {
+					encontrados.add(me.getKey());
+				}
+			}
+		}
+		return encontrados;
+	}
 }
