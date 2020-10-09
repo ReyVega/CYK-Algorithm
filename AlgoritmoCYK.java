@@ -36,7 +36,7 @@ public class AlgoritmoCYK {
 		}
 	}
 
-	public void aplicarAlgoritmo() {
+	public boolean aplicarAlgoritmo() {
 
 		// Llenar primera linea
 		for (int i = 0; i < this.word.length(); i++) {
@@ -59,6 +59,7 @@ public class AlgoritmoCYK {
 				}
 			}
 		}
+		return this.matriz.get(word.length() - 1).get(0).contains(this.simbolosNoTerminales.get(0));
 	}
 
 	public LinkedHashSet<Character> checarSiExisteProduccion(LinkedHashSet<Character> first,

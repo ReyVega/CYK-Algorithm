@@ -13,7 +13,8 @@ public class Main {
 		c.eliminarProduccionesNoAlcanzables();
 		// 5to paso (Convertir GLC a FNCh)
 		c.convertirChomsky();
-		c.algoritmoCYK();
 		c.imprimirGramatica();
+		// 6to paso (Ya podemos utilizar el algoritmo para verificar que nuestra cadena corresponde a la gramática)
+		c.algoritmoCYK();
 	}
 }

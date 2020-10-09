@@ -7,11 +7,11 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 
 public class Convertidor {
+	// Atributos
 	private String word;
 	private ArrayList<Character> simbolosNoTerminales = new ArrayList<Character>();
 	private ArrayList<Character> simbolosTerminales = new ArrayList<Character>();
 	private LinkedHashMap<Character, ArrayList<String>> producciones = new LinkedHashMap<Character, ArrayList<String>>();
-
 
 	public void eliminarProduccionesQueNoGeneranTerminales() {
 		SimbolosQueNoGeneranTerminales s = new SimbolosQueNoGeneranTerminales(this.simbolosNoTerminales,
@@ -24,8 +24,8 @@ public class Convertidor {
 	}
 
 	public void eliminarProduccionesNoAlcanzables() {
-		SimbolosNoAlcanzables s = new SimbolosNoAlcanzables(this.simbolosNoTerminales,
-				this.simbolosTerminales, this.producciones);
+		SimbolosNoAlcanzables s = new SimbolosNoAlcanzables(this.simbolosNoTerminales, this.simbolosTerminales,
+				this.producciones);
 		s.eliminarProduccionesNoAlcanzables();
 		this.simbolosNoTerminales = s.getSimbolosNoTerminales();
 		this.simbolosTerminales = s.getSimbolosTerminales();
@@ -34,8 +34,8 @@ public class Convertidor {
 	}
 
 	public void generarCerraduraDeProducciones() {
-		CerraduraDeProducciones s = new CerraduraDeProducciones(this.simbolosNoTerminales,
-				this.simbolosTerminales, this.producciones);
+		CerraduraDeProducciones s = new CerraduraDeProducciones(this.simbolosNoTerminales, this.simbolosTerminales,
+				this.producciones);
 		s.generarCerraduraDeProducciones();
 		this.simbolosNoTerminales = s.getSimbolosNoTerminales();
 		this.simbolosTerminales = s.getSimbolosTerminales();
@@ -43,23 +43,24 @@ public class Convertidor {
 		this.actualizarSimbolosNoTerminales();
 	}
 
-
 	public void convertirChomsky() {
-		FNCh s = new FNCh(this.simbolosNoTerminales,
-				this.simbolosTerminales, this.producciones);
+		FNCh s = new FNCh(this.simbolosNoTerminales, this.simbolosTerminales, this.producciones);
 		s.convertirChomsky();
 		this.simbolosNoTerminales = s.getSimbolosNoTerminales();
 		this.simbolosTerminales = s.getSimbolosTerminales();
 		this.producciones = s.getProducciones();
 		this.actualizarSimbolosNoTerminales();
 	}
-	
-	public void algoritmoCYK() {
-		AlgoritmoCYK s = new AlgoritmoCYK(this.simbolosNoTerminales,
-				this.simbolosTerminales, this.producciones, this.word);
-		s.aplicarAlgoritmo();
-	}
 
+	public void algoritmoCYK() {
+		AlgoritmoCYK s = new AlgoritmoCYK(this.simbolosNoTerminales, this.simbolosTerminales, this.producciones,
+				this.word);
+		if (s.aplicarAlgoritmo()) {
+			System.out.println("La cadena es aceptada por la gramática");
+		} else {
+			System.out.println("La cadena no es aceptada por la gramática");
+		}
+	}
 
 	public void leerArchivo() {
 		try {
@@ -68,7 +69,7 @@ public class Convertidor {
 			ArrayList<String> tmp;
 
 			this.word = br.readLine();
-			
+
 			line = br.readLine();
 			for (int i = 0; i < line.length(); i++) {
 				if (line.charAt(i) != ',') {
