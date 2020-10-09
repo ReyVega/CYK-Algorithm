@@ -78,15 +78,6 @@ public class CerraduraDeProducciones {
 				}
 			}
 		}
-
-		for (Entry<Character, ArrayList<String>> me : this.producciones.entrySet()) {
-			if (me.getValue().size() == 1) {
-				if (me.getValue().get(0).length() == 1
-						&& this.simbolosTerminales.contains(me.getValue().get(0).charAt(0))) {
-					this.producciones.remove(me.getKey());
-				}
-			}
-		}
 	}
 
 	public boolean checarSiTieneEpsilonProduccion(Character ch) {

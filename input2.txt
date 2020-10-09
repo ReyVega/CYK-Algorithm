@@ -8,3 +8,12 @@ C->abd
 S
 []
 S->[S],SS,0
+
+aabbab
+S,A,B,C,D
+a,b
+S->AB,SS,AC,BD,BA
+A->a
+B->b
+C->SB
+D->SA

@@ -1,19 +1,13 @@
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class Convertidor {
+	private String word;
 	private ArrayList<Character> simbolosNoTerminales = new ArrayList<Character>();
 	private ArrayList<Character> simbolosTerminales = new ArrayList<Character>();
 	private LinkedHashMap<Character, ArrayList<String>> producciones = new LinkedHashMap<Character, ArrayList<String>>();
@@ -59,6 +53,12 @@ public class Convertidor {
 		this.producciones = s.getProducciones();
 		this.actualizarSimbolosNoTerminales();
 	}
+	
+	public void algoritmoCYK() {
+		AlgoritmoCYK s = new AlgoritmoCYK(this.simbolosNoTerminales,
+				this.simbolosTerminales, this.producciones, this.word);
+		s.aplicarAlgoritmo();
+	}
 
 
 	public void leerArchivo() {
@@ -67,6 +67,8 @@ public class Convertidor {
 			String line;
 			ArrayList<String> tmp;
 
+			this.word = br.readLine();
+			
 			line = br.readLine();
 			for (int i = 0; i < line.length(); i++) {
 				if (line.charAt(i) != ',') {

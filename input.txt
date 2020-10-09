@@ -1,6 +1,8 @@
+aabbab
 S,A,B,C,D
-a,b,d
-S->aA,B,D
-A->aA,bA,B
-B->b,0
-C->abd
+a,b
+S->AB,SS,AC,BD,BA
+A->a
+B->b
+C->SB
+D->SA

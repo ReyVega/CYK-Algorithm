@@ -28,9 +28,11 @@ public class FNCh {
 		// Recorremos y buscamos posibles simbolos terminales para reemplazar
 		for (Entry<Character, ArrayList<String>> me : this.producciones.entrySet()) {
 			for (int j = 0; j < me.getValue().size(); j++) {
-				for (int k = 0; k < me.getValue().get(j).length(); k++) {
-					if (this.simbolosTerminales.contains(me.getValue().get(j).charAt(k))) {
-						terminalesVisitados.add(me.getValue().get(j).charAt(k));
+				if(me.getValue().get(j).length() > 1) {
+					for (int k = 0; k < me.getValue().get(j).length(); k++) {
+						if (this.simbolosTerminales.contains(me.getValue().get(j).charAt(k))) {
+							terminalesVisitados.add(me.getValue().get(j).charAt(k));
+						}
 					}
 				}
 			}
