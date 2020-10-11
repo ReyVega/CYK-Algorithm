@@ -53,13 +53,15 @@ public class Convertidor {
 	}
 
 	public void algoritmoCYK() {
-		AlgoritmoCYK s = new AlgoritmoCYK(this.simbolosNoTerminales, this.simbolosTerminales, this.producciones,
+		AlgoritmoCYK s = new AlgoritmoCYK(this.simbolosNoTerminales, this.producciones,
 				this.word);
 		if (s.aplicarAlgoritmo()) {
+			System.out.println("\n" + this.word);
 			System.out.println("La cadena es aceptada por la gramática");
-			s.construirArbol();
+			s.generarRecorridoArbol();
 		} else {
-			System.out.println("La cadena no es aceptada por la gramática");
+			System.out.println("\n" + this.word);
+			System.out.println("\nLa cadena no es aceptada por la gramática");
 		}
 	}
 

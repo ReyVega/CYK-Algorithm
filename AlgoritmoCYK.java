@@ -1,31 +1,39 @@
+import java.awt.Dimension;
+import java.awt.Font;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
+import java.util.LinkedList;
 import java.util.Map.Entry;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.WindowConstants;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 
 public class AlgoritmoCYK {
 	private ArrayList<ArrayList<LinkedHashSet<Character>>> matriz = new ArrayList<ArrayList<LinkedHashSet<Character>>>();
 	private LinkedHashMap<Character, LinkedHashSet<String>> p = new LinkedHashMap<Character, LinkedHashSet<String>>();
 	private ArrayList<Character> simbolosNoTerminales;
-	private ArrayList<Character> simbolosTerminales;
 	private LinkedHashMap<Character, ArrayList<String>> producciones;
 	private String word;
 
-	public AlgoritmoCYK(ArrayList<Character> simbolosNoTerminales, ArrayList<Character> simbolosTerminales,
+	// Arbol
+	private LinkedList<Character> nodoActual = new LinkedList<Character>();
+	private ArrayList<ArrayList<Character>> recorrido = new ArrayList<ArrayList<Character>>();
+	private int indexArray = 0;
+
+	public AlgoritmoCYK(ArrayList<Character> simbolosNoTerminales,
 			LinkedHashMap<Character, ArrayList<String>> producciones, String word) {
 		this.simbolosNoTerminales = simbolosNoTerminales;
-		this.simbolosTerminales = simbolosTerminales;
 		this.producciones = producciones;
 		this.word = word;
-		
+
 		// Preparar producciones para el algoritmo
 		for (Entry<Character, ArrayList<String>> me : this.producciones.entrySet()) {
 			this.p.put(me.getKey(), new LinkedHashSet<String>());
@@ -67,25 +75,10 @@ public class AlgoritmoCYK {
 		}
 		return this.matriz.get(word.length() - 1).get(0).contains(this.simbolosNoTerminales.get(0));
 	}
-	
-	public void construirArbol() {
-		//Arbol
-		DefaultMutableTreeNode dt = new DefaultMutableTreeNode(this.simbolosNoTerminales.get(0));
-		DefaultTreeModel t = new DefaultTreeModel(dt);
-		JTree tree = new JTree(dt);
-		
-		JFrame v = new JFrame();
-        JScrollPane scroll = new JScrollPane(tree);
-        v.getContentPane().add(scroll);
-        v.pack();
-        v.setLocationRelativeTo(null);
-        v.setVisible(true);
-        v.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	}
 
 	public LinkedHashSet<Character> checarSiExisteProduccion(LinkedHashSet<Character> first,
 			LinkedHashSet<Character> second) {
-		
+
 		LinkedHashSet<String> tmp = new LinkedHashSet<String>();
 
 		for (Character ch : first) {
@@ -93,7 +86,7 @@ public class AlgoritmoCYK {
 				tmp.add(Character.toString(ch) + Character.toString(ch2));
 			}
 		}
-				
+
 		LinkedHashSet<Character> encontrados = new LinkedHashSet<Character>();
 
 		for (String word : tmp) {
@@ -104,5 +97,127 @@ public class AlgoritmoCYK {
 			}
 		}
 		return encontrados;
+	}
+
+	public void generarRecorridoArbol() {
+		this.nodoActual.add(this.simbolosNoTerminales.get(0));
+
+		LinkedList<Integer> i = new LinkedList<Integer>();
+		LinkedList<Integer> j = new LinkedList<Integer>();
+
+		i.add(word.length() - 1);
+		j.add(0);
+
+		while (!(i.isEmpty() && j.isEmpty())) {
+			int indexI = i.poll();
+			int indexJ = j.poll();
+			int z = indexI;
+			int w = indexJ;
+			Character n = this.nodoActual.poll();
+			this.recorrido.add(new ArrayList<Character>(Arrays.asList(n)));
+
+			if (indexI == 0) {
+				this.recorrido.get(this.indexArray++).add(this.word.charAt(indexJ));
+			} else {
+				for (int k = 0; k < indexI; k++) {
+					if (this.checarCorrespondencia(this.matriz.get(k).get(indexJ), this.matriz.get(--z).get(++w), n)) {
+						i.add(k);
+						j.add(indexJ);
+						i.add(z);
+						j.add(w);
+						break;
+					}
+				}
+			}
+		}
+		this.construirArbol();
+	}
+
+	public boolean checarCorrespondencia(LinkedHashSet<Character> first, LinkedHashSet<Character> second,
+			Character nodoActual) {
+
+		LinkedHashSet<String> tmp = new LinkedHashSet<String>();
+
+		for (Character ch : first) {
+			for (Character ch2 : second) {
+				tmp.add(Character.toString(ch) + Character.toString(ch2));
+			}
+		}
+
+		for (String word : tmp) {
+			if (this.p.get(nodoActual).contains(word)) {
+				this.recorrido.get(this.indexArray).add(word.charAt(0));
+				this.recorrido.get(this.indexArray).add(word.charAt(1));
+				this.nodoActual.add(word.charAt(0));
+				this.nodoActual.add(word.charAt(1));
+				this.indexArray++;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public void construirArbol() {
+		// 1era iteración
+		DefaultMutableTreeNode parent = new DefaultMutableTreeNode(this.simbolosNoTerminales.get(0));
+		DefaultMutableTreeNode c1 = new DefaultMutableTreeNode(this.recorrido.get(0).get(1));
+		DefaultMutableTreeNode c2 = new DefaultMutableTreeNode(this.recorrido.get(0).get(2));
+
+		DefaultTreeModel modelo = new DefaultTreeModel(parent);
+		modelo.insertNodeInto(c1, parent, 0);
+		modelo.insertNodeInto(c2, parent, 1);
+
+		JTree tree = new JTree(modelo);
+		tree.collapseRow(0);
+		final Font currentFont = tree.getFont();
+		final Font bigFont = new Font(currentFont.getName(), currentFont.getStyle(), currentFont.getSize() + 5);
+		tree.setFont(bigFont);
+		DefaultTreeCellRenderer render = (DefaultTreeCellRenderer) tree.getCellRenderer();
+		render.setLeafIcon(new ImageIcon("leaf.png"));
+		render.setOpenIcon(new ImageIcon("branch.png"));
+		render.setClosedIcon(new ImageIcon("branch.png"));
+		
+		LinkedList<DefaultMutableTreeNode> parents = new LinkedList<DefaultMutableTreeNode>();
+
+		parents.add(c1);
+		parents.add(c2);
+
+		while (!parents.isEmpty()) {
+			for (int j = 1; j < this.recorrido.get(0).size(); j++) {
+				for (int k = 1; k < this.recorrido.size(); k++) {
+					if (this.recorrido.get(0).get(j) == this.recorrido.get(k).get(0)) {
+						if (this.recorrido.get(k).size() == 2) {
+							DefaultMutableTreeNode child = new DefaultMutableTreeNode(this.recorrido.get(k).get(1));
+							modelo.insertNodeInto(child, parents.get(0), 0);
+							parents.poll();
+							this.recorrido.remove(k);
+							break;
+						} else {
+							DefaultMutableTreeNode child1 = new DefaultMutableTreeNode(this.recorrido.get(k).get(1));
+							DefaultMutableTreeNode child2 = new DefaultMutableTreeNode(this.recorrido.get(k).get(2));
+							modelo.insertNodeInto(child1, parents.get(0), 0);
+							modelo.insertNodeInto(child2, parents.get(0), 1);
+							parents.poll();
+							parents.add(child1);
+							parents.add(child2);
+							break;
+						}
+					}
+				}
+			}
+			this.recorrido.remove(0);
+			if (this.recorrido.isEmpty()) {
+				break;
+			}
+		}
+
+		JFrame v = new JFrame("Árbol de derivación");
+		JScrollPane scroll = new JScrollPane(tree);
+		v.setSize(new Dimension(500, 500));
+		v.setIconImage(new ImageIcon("branch.png").getImage());
+		v.getContentPane().add(scroll);
+		v.setLocationRelativeTo(null);
+		v.setVisible(true);
+		v.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 	}
 }
