@@ -1,1 +1,1 @@
-# GLC-converter
+# CYK-Algorithm
