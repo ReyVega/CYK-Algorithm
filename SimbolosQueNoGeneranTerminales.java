@@ -20,7 +20,7 @@ public class SimbolosQueNoGeneranTerminales {
 		LinkedHashSet<Character> N1 = new LinkedHashSet<Character>();
 		LinkedHashSet<Character> N1USigma = new LinkedHashSet<Character>();
 		N1USigma.addAll(this.simbolosTerminales);
-		N1USigma.add('0');
+		N1USigma.add('$');
 
 		// Algoritmo para obtener N1
 		while (true) {

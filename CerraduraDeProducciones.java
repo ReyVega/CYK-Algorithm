@@ -28,7 +28,7 @@ public class CerraduraDeProducciones {
 								String word = this.producciones.get(me.getKey()).get(j);
 								word = word.substring(0, k) + "" + word.substring(k + 1);
 								if (word.equals("")) {
-									word = "0";
+									word = "$";
 								}
 								if (!me.getValue().contains(word)) {
 									this.producciones.get(me.getKey()).add(word);
@@ -61,7 +61,7 @@ public class CerraduraDeProducciones {
 		// Limpiar producciones epsilon
 		for (Entry<Character, ArrayList<String>> me : this.producciones.entrySet()) {
 			for (int j = 0; j < me.getValue().size(); j++) {
-				if (me.getValue().get(j).equals("0")) {
+				if (me.getValue().get(j).equals("$")) {
 					me.getValue().remove(j);
 					j--;
 				}
@@ -82,7 +82,7 @@ public class CerraduraDeProducciones {
 
 	public boolean checarSiTieneEpsilonProduccion(Character ch) {
 		for (String m : this.producciones.get(ch)) {
-			if (m.equals("0")) {
+			if (m.equals("$")) {
 				return true;
 			}
 		}
