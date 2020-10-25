@@ -1,20 +1,27 @@
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.WindowConstants;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 
 public class AlgoritmoCYK {
 	private ArrayList<ArrayList<LinkedHashSet<Character>>> matriz = new ArrayList<ArrayList<LinkedHashSet<Character>>>();
@@ -168,7 +175,6 @@ public class AlgoritmoCYK {
 		modelo.insertNodeInto(c2, parent, 1);
 
 		JTree tree = new JTree(modelo);
-		tree.collapseRow(0);
 		final Font currentFont = tree.getFont();
 		final Font bigFont = new Font(currentFont.getName(), currentFont.getStyle(), currentFont.getSize() + 5);
 		tree.setFont(bigFont);
@@ -176,7 +182,7 @@ public class AlgoritmoCYK {
 		render.setLeafIcon(new ImageIcon("leaf.png"));
 		render.setOpenIcon(new ImageIcon("branch.png"));
 		render.setClosedIcon(new ImageIcon("branch.png"));
-		
+
 		LinkedList<DefaultMutableTreeNode> parents = new LinkedList<DefaultMutableTreeNode>();
 
 		parents.add(c1);
@@ -213,11 +219,47 @@ public class AlgoritmoCYK {
 
 		JFrame v = new JFrame("Árbol de derivación");
 		JScrollPane scroll = new JScrollPane(tree);
+		JPanel panel = new JPanel();
+		JButton expandBtn = new JButton("Expandir todo");
+		expandBtn.addActionListener(e -> {
+			setTreeExpandedState(tree, true);
+		});
+		panel.add(expandBtn);
+
+		JButton collapseBtn = new JButton("Cerrar todo");
+		collapseBtn.addActionListener(e -> {
+			setTreeExpandedState(tree, false);
+		});
+		panel.add(collapseBtn);
+
+		v.add(panel, BorderLayout.NORTH);
+		panel.add(collapseBtn);
 		v.setSize(new Dimension(500, 500));
 		v.setIconImage(new ImageIcon("branch.png").getImage());
 		v.getContentPane().add(scroll);
 		v.setLocationRelativeTo(null);
 		v.setVisible(true);
 		v.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+	}
+
+	public void setTreeExpandedState(JTree tree, boolean expanded) {
+		DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getModel().getRoot();
+		setNodeExpandedState(tree, node, expanded);
+	}
+
+	public void setNodeExpandedState(JTree tree, TreeNode treeNode2, boolean expanded) {
+		ArrayList<TreeNode> list = (ArrayList<TreeNode>) Collections.list(treeNode2.children());
+		for (TreeNode treeNode : list) {
+			setNodeExpandedState(tree, treeNode, expanded);
+		}
+		if (!expanded && ((DefaultMutableTreeNode) treeNode2).isRoot()) {
+			return;
+		}
+		TreePath path = new TreePath(((DefaultMutableTreeNode) treeNode2).getPath());
+		if (expanded) {
+			tree.expandPath(path);
+		} else {
+			tree.collapsePath(path);
+		}
 	}
 }
