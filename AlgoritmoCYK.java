@@ -189,8 +189,9 @@ public class AlgoritmoCYK {
 		parents.add(c2);
 
 		while (!parents.isEmpty()) {
+			int index = 1;
 			for (int j = 1; j < this.recorrido.get(0).size(); j++) {
-				for (int k = 1; k < this.recorrido.size(); k++) {
+				for(int k = index; k < this.recorrido.size(); k++) {
 					if (this.recorrido.get(0).get(j) == this.recorrido.get(k).get(0)) {
 						if (this.recorrido.get(k).size() == 2) {
 							DefaultMutableTreeNode child = new DefaultMutableTreeNode(this.recorrido.get(k).get(1));
@@ -206,15 +207,13 @@ public class AlgoritmoCYK {
 							parents.poll();
 							parents.add(child1);
 							parents.add(child2);
+							index++;
 							break;
 						}
 					}
 				}
 			}
 			this.recorrido.remove(0);
-			if (this.recorrido.isEmpty()) {
-				break;
-			}
 		}
 
 		JFrame v = new JFrame("Árbol de derivación");
