@@ -1,3 +1,4 @@
+aabbab
 S,A,B,C,D
 a,b
 S->AB,SS,AC,BD,BA
